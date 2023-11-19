@@ -3,29 +3,47 @@
 #### 介绍
 本项目基于 RFC8914 等标准，全面梳理DNSSEC的错误配置类型，通过命令行和脚本的形式发数据包请求开展DNSSEC的错误配置检测。
 
-#### 软件架构
-软件架构说明
+## 1. 项目介绍
+![framework](/resources/photos/dnssec_configuration_framework.png)
 
+## 2. 项目目录介绍
 
-#### 安装教程
++ codes
+  + analyze_visualize_error_logs.py  ------------->分析error日志，并将其可视化
+  + detect_dnssec_configuration_errors.py ------------->检测域名的错误配置，并将日志写入文件       
+  + get_recursion_dnssec_nameservers.py ------------->筛选支持dnssec的递归服务器
++ data
+  + nameservers
+    + dns_nameserver_re_dnssec_1000.txt------------->1000个支持dnssec的递归服务器
+    + dns_nameservers_original.csv------------->原始的未经过筛选的服务器
+    + dns_nameservers_processed_by_label.csv------------->经过标签筛选的服务器
+  + error_list
+  + detect_logs
++ docs
++ resources
+  + photos
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 3. 使用说明
 
-#### 使用说明
++ 进入codes目录，直接 传入域名和错误类型两个参数运行shell脚本即可
+示例：
+```shell
+./run.sh iwbtfy.top ds
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+## 4. 项目参与者
 
-#### 参与贡献
+-------------------------------------
++ illuminate
++ iwbtfy
+-------------------------------------
+
+## 5. 参与贡献
 
 1.  Fork 本仓库
 2.  新建 Feat_xxx 分支
 3.  提交代码
 4.  新建 Pull Request
-
 
 #### 特技
 
