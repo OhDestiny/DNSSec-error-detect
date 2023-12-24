@@ -36,8 +36,8 @@ def detect_error(errors, domain_names, nameserver_file, key_file, logs, record_t
                     if "EDE" in str(line):
                         print(line)
                         # 按照冒号分割
-                        line_list = str(line).split(':', 3)
-                        line_errors = line_list[0] + ':' + line_list[1]
+                        line_list = str(line).split('(', 2)
+                        line_errors = line_list[0]
                         print(line_errors)
                         errors_set.add(line_errors)
             # 保存日志

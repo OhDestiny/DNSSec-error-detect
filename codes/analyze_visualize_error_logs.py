@@ -23,7 +23,7 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
     explode = [0, 0.1, 0.2, 0.3, 0.4, 0.05, 0.1, 0, 15]
 
     data = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]  # 这是你要从中选择的数据列表
-    random_choice = random.choice(data)  # 从数据列表中随机选择一个元素
+    # random_choice = random.choice(data)   从数据列表中随机选择一个元素
     # 根据error_num的值动态调整explode
     for i in range(len(error_num)):
         if error_num[i] > 500:
@@ -34,16 +34,16 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
             explode[i] = 0.05
         elif 0 <= error_num[i] <= 50:
             explode[i] = random.choice(data)
-       # elif error_num[i] < 5:
-        #    explode[i] = 0.5
+    # elif error_num[i] < 5:
+    #    explode[i] = 0.5
 
     my_color = colors[0:len(error_list)]
     my_explode = explode[0:len(error_list)]
 
     # 饼图
-    plt.pie(error_num, colors=my_color, autopct='%1.1f%%', startangle=120, pctdistance=1.15, explode=my_explode,
-            radius=0.7)
-    center_circle = plt.Circle((0, 0), 0.40, fc='white')
+    plt.pie(error_num, colors=my_color, autopct='%1.1f%%', startangle=60, pctdistance=1, explode=my_explode,
+            radius=0.45)
+    center_circle = plt.Circle((0, 0), 0.30, fc='white')
     fig = plt.gcf()
     fig.gca().add_artist(center_circle)
 
@@ -54,7 +54,7 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
     labels = error_list
     for i in range(len(labels)):
         labels[i] = labels[i].replace(';', '').replace(' ', '', 1)
-	
+
     print(labels)
     plt.legend(labels, loc="lower center", bbox_to_anchor=(0.5, -0.1), frameon=False)
 

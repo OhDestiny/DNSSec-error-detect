@@ -1,0 +1,7 @@
+;; RRSIG is missing for continue validation: FAILED
+;; RRSIG for DNSKEY is missing  to continue validation : FAILED
+DIG command failed
+;; DNSKEY is missing to continue validation: FAILED
+;; Impossible to verify the Non-existence, the NSEC RRset can't be validated: FAILED
+;; the DNSKEY isn't trusted-key and there isn't DS to validate the DNSKEY: FAILED
+;; ERROR no DS validates a DNSKEY in the DNSKEY RRset: FAILED

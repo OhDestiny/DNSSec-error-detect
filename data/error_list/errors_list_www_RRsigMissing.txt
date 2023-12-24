@@ -1,0 +1,3 @@
+DIG command failed
+;; Impossible to verify the Non-existence, the NSEC RRset can't be validated: FAILED
+;; RRSIG is missing for continue validation: FAILED
