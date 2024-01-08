@@ -22,7 +22,7 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
     colors = ['purple', 'navy', 'green', 'red', 'teal', 'orange', 'wheat', 'tan', 'black']  # 可以设置各部分的颜色
     explode = [0, 0.1, 0.2, 0.3, 0.4, 0.05, 0.1, 0.15, 0.2, 0.1]
 
-    data = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.16, 0.21, 0.30]  # 这是你要从中选择的数据列表
+    data = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]  # 这是你要从中选择的数据列表
     random_choice = random.choice(data)  # 从数据列表中随机选择一个元素
     # 根据error_num的值动态调整explode
     for i in range(len(error_num)):
@@ -32,7 +32,7 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
             explode[i] = 0.02
         elif 50 < error_num[i] <= 100:
             explode[i] = 0.05
-        elif 0 <= error_num[i] <= 50:
+        elif 0 < error_num[i] <= 50:
             explode[i] = random.choice(data)
     # elif error_num[i] < 5:
     #    explode[i] = 0.5
@@ -56,7 +56,7 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
         labels[i] = labels[i].replace(';', '').replace(' ', '', 1)
 
     print(labels)
-    plt.legend(labels, loc="lower center", bbox_to_anchor=(0.5, -0.1), frameon=False)
+    plt.legend(labels, loc="lower center", bbox_to_anchor=(1, -0.1), frameon=False)
 
     # 显示图表
     photo_file = os.path.join(project_root_file, "resources", "photos", domain_name.split('.')[0] + '_' +
@@ -72,12 +72,23 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
 # error_num: 每一种错误的数量数组
 def visualize_error(error_list, log_file, error_num):
     log_data = np.genfromtxt(log_file, delimiter='\n', dtype=str)
+    for i in range(len(error_list)):
+        if error_list[i] == "no_error_code":
+            index = i
+            print(index)
     for row in log_data:
+        # print(row)
         for i in range(len(error_list)):
             if error_list[i] in row:
+                print(row)
                 error_num[i] += 1
+
+    error_num[index] = 1000
     for i in range(len(error_list)):
-        error_num[0] = 1000-error_num[i]
+        if i != index:
+            error_num[index] -= error_num[i]
+    for i in range(len(error_list)):
+        print(error_num[i])
     return error_num
 
 
@@ -88,8 +99,10 @@ if __name__ == '__main__':
 
     # 设置参数
     project_root = os.path.dirname(os.path.dirname(current_script_path))
-    errors = sys.argv[2]
-    domain = sys.argv[1]
+
+    errors = "dnskeyMissing"
+    domain = "iwbtfy.top"
+
     error_list_file = os.path.join(project_root, "data", "error_list", "eCode_errors_list_" + domain.split('.')[0] + '_' +
                                    errors + ".txt")
     errors_list = []

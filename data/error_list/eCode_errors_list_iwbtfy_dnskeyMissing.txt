@@ -1,8 +1,6 @@
-b'; EDE: 9 (DNSKEY Missing)'
+; EDE: 9
 DIG command failed
-b'; EDE: 6 (DNSSEC Bogus)'
-b'; EDE: 9 (DNSKEY Missing)
-b'; EDE: 6 (DNSSEC Bogus)
-b'; EDE: 22 (No Reachable Authority)
-b'; EDE: 13 (Cached Error)'
+; EDE: 6
+; EDE: 22
+; EDE: 13
 no_error_code

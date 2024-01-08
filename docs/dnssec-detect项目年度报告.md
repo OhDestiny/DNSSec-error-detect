@@ -99,8 +99,6 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   iwbtfy.top.	IN	MX  10  mail.iwbtfy.top.
   ns		IN	A	123.207.59.193
   mail		IN	A	123.207.59.193
-  ;www		IN	A	123.207.59.193
-  ;ftp		IN	CNAME	www
   @               IN	A	123.207.59.193
   www             IN      NS      ns1.www
   ns1.www         IN      A       123.207.59.193
@@ -154,8 +152,157 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   ![](./photos/set_ds1.png)
 
 ### 2.3 扩展三级域——www.iwbtfy.top
-
++ 因为.top域的配置我们无法修改，所以我们扩展三级子域，通过修改二级和三级域的配置得到和修改一级和二级域相同的效果。
 ![](./photos/three_domain.png)
+
++ 扩展三级域后，我们起初使用一个子域配置多种错误，这样操作，每一次检测不同的错误，我们都需要重新进行配置错误，就是需要修改子域的域配置，
+所以我们进一步使用多个子域，并且每一个子域对应一种错误，这样每次想要检测的时候就不用修改配置了，并且域名和错误是一一对应的，在进行结果分析的时候
+也会清晰许多。
+![](./photos/domain_error.png)
+
+#### 2.3.1 子域 unsupportedDnskey.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "unsupportedDnskey.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "unsupportedDnskey.iwbtfy.top.zone";
+      key-directory "/var/named/unsupportedDnskey_keys";	
+  };
+  ```
++ 配置/var/named/unsupportedDnskey.iwbtfy.top.zone文件
+  ```shell
+  unsupportedDnskey.iwbtfy.top.	IN	SOA	ns1	admin.unsupportedDnskey.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  unsupportedDnskey.iwbtfy.top.	IN	NS	ns1.unsupportedDnskey.iwbtfy.top.
+  unsupportedDnskey.iwbtfy.top.	IN	MX  10  mail.unsupportedDnskey.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE unsupportedDnskey.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE unsupportedDnskey.iwbtfy.top.
+  
+  ksk: Kunsupporteddnskey.iwbtfy.top.+005+08536
+  zsk: Kunsupporteddnskey.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/unsupportedDnskey.iwbtfy.top.zone
+  ```shell
+  vi  unsupportedDnskey.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/unsupportedDnskey_keys/Kunsupporteddnskey.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/unsupportedDnskey_keys/Kunsupporteddnskey.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/unsupportedDnskey_keys -o unsupportedDnskey.iwbtfy.top. /var/named/unsupportedDnskey.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "unsupportedDnskey.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "unsupportedDnskey.iwbtfy.top.zone";
+    key-directory "/var/named/unsupportedDnskey_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 Kunsupporteddnskey.iwbtfy.top.+005+08536.key
+  
+  unsupportedDnskey.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
+#### 2.3.2 子域 unsupportedDs.iwbtfy.top
+#### 2.3.3 子域 signatureExpired.iwbtfy.top
+#### 2.3.4 子域 signatureNotValid.iwbtfy.top
+#### 2.3.5 子域 rrsigMissing.iwbtfy.top
+#### 2.3.6 子域 noZoneKey.iwbtfy.top
+#### 2.3.7 子域 nsecMissing.iwbtfy.top
+#### 2.3.8 子域 dnskeyMissing.iwbtfy.top
+
+---
+由于八个子域的配置过程类似但是比较麻烦，如果一个一个手动配置比较麻烦，而且显得很呆，于是我们编写了shell脚本进行一键配置。 只要运行下边命令就可以一键配置。
+```shell
+./domain_configuration.sh 子域名称
+```
+shell源码：
+```shell
+#!/bin/bash
+
+echo "sub_domain_name: $1"
+
+# 相关配置文件的路径
+etc_directory="/etc/named.conf"
+zone_directory="/var/named/$1.iwbtfy.top.zone"
+key_directory="/var/named/$1_keys"
+iwbtfy_zone_directory="/var/named/iwbtfy.top.zone"
+iwbtfy_key_directory="/var/named/keys"
+
+# 创建一个子域的域配置文件
+touch $zone_directory
+
+# 写入域配置
+echo "\$TTL 600
+$1.iwbtfy.top.	IN	SOA	ns	admin.$1.iwbtfy.top. (
+                3
+                1H
+                5M
+                2D
+                6H )
+$1.iwbtfy.top.	IN	NS	ns.$1.iwbtfy.top.
+$1.iwbtfy.top.	IN	MX  10  mail.$1.iwbtfy.top.
+ns	           	IN	A	123.207.59.193
+mail		        IN	A	123.207.59.193
+@               IN	A	123.207.59.193" >> $zone_directory
+
+# 创建子域对应的keys的文件夹
+mkdir $key_directory
+
+# 生成keys
+cd $key_directory
+# dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top.
+ksk=$(dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top. | grep iwbtfy)
+echo $ksk
+# dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top.
+zsk=$(dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top. | grep iwbtfy)
+echo $zsk
+
+# 将keys写入到域配置中
+echo "\$INCLUDE \"$key_directory/$ksk.key\"
+\$INCLUDE \"$key_directory/$zsk.key\" " >> $zone_directory
+
+# 生成ds记录
+ds=$(dnssec-dsfromkey -2 $ksk.key)
+echo $ds
+# 将ds记录写入上一级的域配置中
+echo "$1             IN      NS      ns1.$1
+ns1.$1         IN      A       123.207.59.193
+$ds" >> $iwbtfy_zone_directory
+
+# 使用key签名域配置
+dnssec-signzone -K $key_directory -o $1.iwbtfy.top. /var/named/$1.iwbtfy.top.zone
+dnssec-signzone -K $iwbtfy_key_directory -o iwbtfy.top. /var/named/iwbtfy.top.zone
+
+# 在/etc/named.conf添加这个子域
+echo "zone \"$1.iwbtfy.top\" IN {
+  type master;
+  auto-dnssec maintain;
+  update-policy local;
+  file \"$1.iwbtfy.top.zone.signed\";
+  key-directory \"$key_directory\";
+};" >> $etc_directory
+```
 
 ### 2.4 修改域名dnssec配置——配置错误
 
