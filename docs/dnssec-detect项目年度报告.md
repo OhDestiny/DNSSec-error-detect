@@ -224,6 +224,68 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   ```
 
 #### 2.3.2 子域 unsupportedDs.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "unsupportedDs.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "unsupportedDs.iwbtfy.top.zone";
+      key-directory "/var/named/unsupportedDs_keys";	
+  };
+  ```
++ 配置/var/named/unsupportedDs.iwbtfy.top.zone文件
+  ```shell
+  unsupportedDs.iwbtfy.top.	IN	SOA	ns1	admin.unsupportedDs.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  unsupportedDs.iwbtfy.top.	IN	NS	ns1.unsupportedDs.iwbtfy.top.
+  unsupportedDs.iwbtfy.top.	IN	MX  10  mail.unsupportedDs.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE unsupportedDs.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE unsupportedDs.iwbtfy.top.
+  
+  ksk: KunsupportedDs.iwbtfy.top.+005+08536
+  zsk: KunsupportedDs.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/unsupportedDs.iwbtfy.top.zone
+  ```shell
+  vi  unsupportedDs.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/unsupportedDs_keys/KunsupportedDs.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/unsupportedDs_keys/KunsupportedDs.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/unsupportedDs_keys -o unsupportedDs.iwbtfy.top. /var/named/unsupportedDs.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "unsupportedDs.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "unsupportedDs.iwbtfy.top.zone";
+    key-directory "/var/named/unsupportedDs_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KunsupportedDs.iwbtfy.top.+005+08536.key
+  
+  unsupportedDs.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
 #### 2.3.3 子域 signatureExpired.iwbtfy.top
 #### 2.3.4 子域 signatureNotValid.iwbtfy.top
 #### 2.3.5 子域 rrsigMissing.iwbtfy.top
