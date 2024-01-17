@@ -287,6 +287,68 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   ```
 
 #### 2.3.3 子域 signatureExpired.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "signatureExpired.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "signatureExpired.iwbtfy.top.zone";
+      key-directory "/var/named/signatureExpired_keys";	
+  };
+  ```
++ 配置/var/named/signatureExpired.iwbtfy.top.zone文件
+  ```shell
+  signatureExpired.iwbtfy.top.	IN	SOA	ns1	admin.signatureExpired.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  signatureExpired.iwbtfy.top.	IN	NS	ns1.signatureExpired.iwbtfy.top.
+  signatureExpired.iwbtfy.top.	IN	MX  10  mail.signatureExpired.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE signatureExpired.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE signatureExpired.iwbtfy.top.
+  
+  ksk: KsignatureExpired.iwbtfy.top.+005+08536
+  zsk: KsignatureExpired.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/signatureExpired.iwbtfy.top.zone
+  ```shell
+  vi  signatureExpired.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/unsupportedDnskey_keys/KsignatureExpired.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/unsupportedDnskey_keys/KsignatureExpired.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/signatureExpired_keys -o signatureExpired.iwbtfy.top. /var/named/signatureExpired.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "signatureExpired.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "signatureExpired.iwbtfy.top.zone";
+    key-directory "/var/named/signatureExpired_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KsignatureExpired.iwbtfy.top.+005+08536.key
+  
+  signatureExpired.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
 #### 2.3.4 子域 signatureNotValid.iwbtfy.top
 #### 2.3.5 子域 rrsigMissing.iwbtfy.top
 #### 2.3.6 子域 noZoneKey.iwbtfy.top
@@ -294,7 +356,7 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
 #### 2.3.8 子域 dnskeyMissing.iwbtfy.top
 
 ---
-由于八个子域的配置过程类似但是比较麻烦，如果一个一个手动配置比较麻烦，而且显得很呆，于是我们编写了shell脚本进行一键配置。 只要运行下边命令就可以一键配置。
+由于八个子域的配置过程类似但是比较麻烦，如果一个一个手动配置会很繁琐，于是我们编写了shell脚本进行批量处理。 只要运行下边命令就可以一键配置。
 ```shell
 ./domain_configuration.sh 子域名称
 ```
