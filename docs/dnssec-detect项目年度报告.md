@@ -414,6 +414,68 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
 
 
 #### 2.3.5 子域 rrsigMissing.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "rrsigMissing.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "rrsigMissing.iwbtfy.top.zone";
+      key-directory "/var/named/rrsigMissing_keys";	
+  };
+  ```
++ 配置/var/named/rrsigMissing.iwbtfy.top.zone文件
+  ```shell
+  rrsigMissing.iwbtfy.top.	IN	SOA	ns1	admin.rrsigMissing.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  rrsigMissing.iwbtfy.top.	IN	NS	ns1.rrsigMissing.iwbtfy.top.
+  rrsigMissing.iwbtfy.top.	IN	MX  10  mail.rrsigMissing.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE rrsigMissing.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE rrsigMissing.iwbtfy.top.
+  
+  ksk: KrrsigMissing.iwbtfy.top.+005+08536
+  zsk: KrrsigMissing.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/rrsigMissing.iwbtfy.top.zone
+  ```shell
+  vi  rrsigMissing.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/rrsigMissing_keys/KrrsigMissing.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/rrsigMissing_keys/KrrsigMissing.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/rrsigMissing_keys -o rrsigMissing.iwbtfy.top. /var/named/rrsigMissing.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "rrsigMissing.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "rrsigMissing.iwbtfy.top.zone";
+    key-directory "/var/named/rrsigMissing_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KrrsigMissing.iwbtfy.top.+005+08536.key
+  
+  rrsigMissing.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
 #### 2.3.6 子域 noZoneKey.iwbtfy.top
 #### 2.3.7 子域 nsecMissing.iwbtfy.top
 #### 2.3.8 子域 dnskeyMissing.iwbtfy.top
