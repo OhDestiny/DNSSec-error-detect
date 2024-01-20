@@ -1,0 +1,6 @@
+b'; EDE: 13 
+b'; EDE: 6 
+b'; EDE: 9 
+no_error_code
+DIG command failed
+b'; EDE: 22 
