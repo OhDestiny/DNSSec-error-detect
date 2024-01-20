@@ -114,7 +114,7 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE iwbtfy.top.
   
   kSK  Kiwbtfy.top.+005+16429.key
-  ZSK  Kiwbtfy.top.+005+63462.keyi
+  ZSK  Kiwbtfy.top.+005+63462.key
   ```
 
 
@@ -146,7 +146,6 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   dnssec-dsfromkey -2 Kiwbtfy.top.+005+16429.key
   
   iwbtfy.top. IN DS 16429 5 2 C86EDB0E66548551236FDF978CB92E12F005C033FA2B7DC21AA4FD98BF0E5E8B
-  iwbtfy.top. IN DS 2785 8 2 0048A4CF8CC7CC9EDDA5697AFE87F9717843C44A286BBF450D420DAD05C8F3E5
   ```
 
 + 将ds记录添加到腾讯云控制台
@@ -225,15 +224,451 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   ```
 
 #### 2.3.2 子域 unsupportedDs.iwbtfy.top
-#### 2.3.3 子域 signatureExpired.iwbtfy.top      1
-#### 2.3.4 子域 signatureNotValid.iwbtfy.top     1
-#### 2.3.5 子域 rrsigMissing.iwbtfy.top          1
++ 配置/etc/named.conf文件
+  ```shell
+    zone "unsupportedDs.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "unsupportedDs.iwbtfy.top.zone";
+      key-directory "/var/named/unsupportedDs_keys";	
+  };
+  ```
++ 配置/var/named/unsupportedDs.iwbtfy.top.zone文件
+  ```shell
+  unsupportedDs.iwbtfy.top.	IN	SOA	ns1	admin.unsupportedDs.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  unsupportedDs.iwbtfy.top.	IN	NS	ns1.unsupportedDs.iwbtfy.top.
+  unsupportedDs.iwbtfy.top.	IN	MX  10  mail.unsupportedDs.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE unsupportedDs.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE unsupportedDs.iwbtfy.top.
+  
+  ksk: KunsupportedDs.iwbtfy.top.+005+08536
+  zsk: KunsupportedDs.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/unsupportedDs.iwbtfy.top.zone
+  ```shell
+  vi  unsupportedDs.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/unsupportedDs_keys/KunsupportedDs.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/unsupportedDs_keys/KunsupportedDs.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/unsupportedDs_keys -o unsupportedDs.iwbtfy.top. /var/named/unsupportedDs.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "unsupportedDs.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "unsupportedDs.iwbtfy.top.zone";
+    key-directory "/var/named/unsupportedDs_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KunsupportedDs.iwbtfy.top.+005+08536.key
+  
+  unsupportedDs.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
+#### 2.3.3 子域 signatureExpired.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "signatureExpired.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "signatureExpired.iwbtfy.top.zone";
+      key-directory "/var/named/signatureExpired_keys";	
+  };
+  ```
++ 配置/var/named/signatureExpired.iwbtfy.top.zone文件
+  ```shell
+  signatureExpired.iwbtfy.top.	IN	SOA	ns1	admin.signatureExpired.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  signatureExpired.iwbtfy.top.	IN	NS	ns1.signatureExpired.iwbtfy.top.
+  signatureExpired.iwbtfy.top.	IN	MX  10  mail.signatureExpired.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE signatureExpired.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE signatureExpired.iwbtfy.top.
+  
+  ksk: KsignatureExpired.iwbtfy.top.+005+08536
+  zsk: KsignatureExpired.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/signatureExpired.iwbtfy.top.zone
+  ```shell
+  vi  signatureExpired.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/unsupportedDnskey_keys/KsignatureExpired.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/unsupportedDnskey_keys/KsignatureExpired.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/signatureExpired_keys -o signatureExpired.iwbtfy.top. /var/named/signatureExpired.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "signatureExpired.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "signatureExpired.iwbtfy.top.zone";
+    key-directory "/var/named/signatureExpired_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KsignatureExpired.iwbtfy.top.+005+08536.key
+  
+  signatureExpired.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
+#### 2.3.4 子域 signatureNotValid.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "signatureNotValid.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "signatureNotValid.iwbtfy.top.zone";
+      key-directory "/var/named/signatureNotValid_keys";	
+  };
+  ```
++ 配置/var/named/signatureNotValid.iwbtfy.top.zone文件
+  ```shell
+  signatureNotValid.iwbtfy.top.	IN	SOA	ns1	admin.signatureNotValid.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  signatureNotValid.iwbtfy.top.	IN	NS	ns1.signatureNotValid.iwbtfy.top.
+  signatureNotValid.iwbtfy.top.	IN	MX  10  mail.signatureNotValid.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE signatureNotValid.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE signatureNotValid.iwbtfy.top.
+  
+  ksk: KsignatureNotValid.iwbtfy.top.+005+08536
+  zsk: KsignatureNotValid.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/signatureNotValid.iwbtfy.top.zone
+  ```shell
+  vi  signatureNotValid.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/signatureNotValid_keys/KsignatureNotValid.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/signatureNotValid_keys/KsignatureNotValid.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/signatureNotValid_keys -o signatureNotValid.iwbtfy.top. /var/named/signatureNotValid.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "signatureNotValid.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "signatureNotValid.iwbtfy.top.zone";
+    key-directory "/var/named/signatureNotValid_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KsignatureNotValid.iwbtfy.top.+005+08536.key
+  
+  signatureNotValid.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
+
+#### 2.3.5 子域 rrsigMissing.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "rrsigMissing.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "rrsigMissing.iwbtfy.top.zone";
+      key-directory "/var/named/rrsigMissing_keys";	
+  };
+  ```
++ 配置/var/named/rrsigMissing.iwbtfy.top.zone文件
+  ```shell
+  rrsigMissing.iwbtfy.top.	IN	SOA	ns1	admin.rrsigMissing.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  rrsigMissing.iwbtfy.top.	IN	NS	ns1.rrsigMissing.iwbtfy.top.
+  rrsigMissing.iwbtfy.top.	IN	MX  10  mail.rrsigMissing.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE rrsigMissing.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE rrsigMissing.iwbtfy.top.
+  
+  ksk: KrrsigMissing.iwbtfy.top.+005+08536
+  zsk: KrrsigMissing.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/rrsigMissing.iwbtfy.top.zone
+  ```shell
+  vi  rrsigMissing.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/rrsigMissing_keys/KrrsigMissing.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/rrsigMissing_keys/KrrsigMissing.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/rrsigMissing_keys -o rrsigMissing.iwbtfy.top. /var/named/rrsigMissing.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "rrsigMissing.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "rrsigMissing.iwbtfy.top.zone";
+    key-directory "/var/named/rrsigMissing_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KrrsigMissing.iwbtfy.top.+005+08536.key
+  
+  rrsigMissing.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
 #### 2.3.6 子域 noZoneKey.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "noZoneKey.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "noZoneKey.iwbtfy.top.zone";
+      key-directory "/var/named/noZoneKey_keys";	
+  };
+  ```
++ 配置/var/named/noZoneKey.iwbtfy.top.zone文件
+  ```shell
+  noZoneKey.iwbtfy.top.	IN	SOA	ns1	admin.noZoneKey.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  noZoneKey.iwbtfy.top.	IN	NS	ns1.noZoneKey.iwbtfy.top.
+  noZoneKey.iwbtfy.top.	IN	MX  10  mail.noZoneKey.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE noZoneKey.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE noZoneKey.iwbtfy.top.
+  
+  ksk: KnoZoneKey.iwbtfy.top.+005+08536
+  zsk: KnoZoneKey.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/noZoneKey.iwbtfy.top.zone
+  ```shell
+  vi  noZoneKey.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/noZoneKey_keys/KnoZoneKey.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/noZoneKey_keys/KnoZoneKey.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/noZoneKey_keys -o noZoneKey.iwbtfy.top. /var/named/noZoneKey.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "noZoneKey.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "noZoneKey.iwbtfy.top.zone";
+    key-directory "/var/named/noZoneKey_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 KnoZoneKey.iwbtfy.top.+005+08536.key
+  
+  noZoneKey.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
 #### 2.3.7 子域 nsecMissing.iwbtfy.top
-#### 2.3.8 子域 dnskeyMissing.iwbtfy.top         1
++ 配置/etc/named.conf文件
+  ```shell
+    zone "nsecMissing.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "nsecMissing.iwbtfy.top.zone";
+      key-directory "/var/named/nsecMissing_keys";	
+  };
+  ```
++ 配置/var/named/nsecMissing.iwbtfy.top.zone文件
+  ```shell
+  nsecMissing.iwbtfy.top.	IN	SOA	ns1	admin.nsecMissing.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  nsecMissing.iwbtfy.top.	IN	NS	ns1.nsecMissing.iwbtfy.top.
+  nsecMissing.iwbtfy.top.	IN	MX  10  mail.nsecMissing.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE nsecMissing.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE nsecMissing.iwbtfy.top.
+  
+  ksk: KnsecMissing.iwbtfy.top.+005+08536
+  zsk: KnsecMissing.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/nsecMissing.iwbtfy.top.zone
+  ```shell
+  vi  nsecMissing.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/nsecMissing_keys/KnsecMissing.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/nsecMissing_keys/KnsecMissing.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/nsecMissing_keys -o nsecMissing.iwbtfy.top. /var/named/nsecMissing.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "nsecMissing.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "nsecMissing.iwbtfy.top.zone";
+    key-directory "/var/named/nsecMissing_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 nsecMissing.iwbtfy.top.+005+08536.key
+  
+  nsecMissing.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
+#### 2.3.8 子域 dnskeyMissing.iwbtfy.top
++ 配置/etc/named.conf文件
+  ```shell
+    zone "dnskeyMissing.iwbtfy.top" IN {
+      type master;
+      auto-dnssec maintain;
+      update-policy local;
+      file "dnskeyMissing.iwbtfy.top.zone";
+      key-directory "/var/named/dnskeyMissing_keys";	
+  };
+  ```
++ 配置/var/named/dnskeyMissing.iwbtfy.top.zone文件
+  ```shell
+  dnskeyMissing.iwbtfy.top.	IN	SOA	ns1	admin.dnskeyMissing.iwbtfy.top. (
+				3
+				1H
+				5M
+				2D
+				6H )
+
+  dnskeyMissing.iwbtfy.top.	IN	NS	ns1.dnskeyMissing.iwbtfy.top.
+  dnskeyMissing.iwbtfy.top.	IN	MX  10  mail.dnskeyMissing.iwbtfy.top.
+  ns1		IN	A	123.207.59.193
+  mail		IN	A	123.207.59.193
+  www		IN	A	123.207.59.193
+  ftp		IN	CNAME	www
+  @               IN	A	123.207.59.193
+  ```
++ 生成keys
+  ```shell
+  dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE dnskeyMissing.iwbtfy.top.
+  dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE dnskeyMissing.iwbtfy.top.
+  
+  ksk: KdnskeyMissing.iwbtfy.top.+005+08536
+  zsk: KdnskeyMissing.iwbtfy.top.+005+26331
+  ```
++ 将keys添加到/var/named/dnskeyMissing.iwbtfy.top.zone
+  ```shell
+  vi  dnskeyMissing.iwbtfy.top.zone 添加
+  $INCLUDE "/var/named/dnskeyMissing_keys/KdnskeyMissing.iwbtfy.top.+005+08536.key"
+  $INCLUDE "/var/named/dnskeyMissing_keys/KdnskeyMissing.iwbtfy.top.+005+26331.key" 
+  ```
++ 用keys签名zone
+  ```shell
+  dnssec-signzone -K /var/named/dnskeyMissing_keys -o dnskeyMissing.iwbtfy.top. /var/named/dnskeyMissing.iwbtfy.top.zone
+  ```
++ 修改/etc/named.conf文件
+  ```shell
+  zone "dnskeyMissing.iwbtfy.top" IN {
+    type master;
+    auto-dnssec maintain;
+    update-policy local;
+    file "dnskeyMissing.iwbtfy.top.zone";
+    key-directory "/var/named/dnskeyMissing_keys";	
+  };
+  ```
++ 生成ds记录并且将ds记录添加到父域
+  ```shell
+  dnssec-dsfromkey -2 dnskeyMissing.iwbtfy.top.+005+08536.key
+  
+  dnskeyMissing.iwbtfy.top. IN DS 8536 5 2 543B066F2A02B7B91B7575861DF32AEDF562D274FD304F33579EFE11190CEE52
+  ```
+
+
 
 ---
-由于八个子域的配置过程类似但是比较麻烦，如果一个一个手动配置比较麻烦，而且显得很呆，于是我们编写了shell脚本进行一键配置。 只要运行下边命令就可以一键配置。
+由于八个子域的配置过程类似且比较麻烦，如果一个一个手动配置会很繁琐，于是我们编写了shell脚本进行批量处理。 只要运行下边命令就可以一键配置。
 ```shell
 ./domain_configuration.sh 子域名称
 ```
@@ -719,5 +1154,5 @@ def detect_error(errors, domain_names, nameserver_file, key_file, logs, record_t
 
 ### 4.2 展望
 
-在与陈老师开会讨论后，陈老师提出了新的思路，即通过修改dig版本，使其支持edns，将其他返回的错误文本信息都统一转换为error_code，如下图，以更好的说明服务器的检测能力。同时，为了搭建一个整体的检测系统，我们后续将为每一种错误类型申请一个三级域名并配置错误，最后再封装成递归解析安全增强措施部署分析的原型系统。
+在于陈老师开会讨论后，陈老师提出了新的思路，即通过修改dig版本，使其支持edns，将其他返回的错误文本信息都统一转换为error_code，如下图，以更好的说明服务器的检测能力。同时，为了搭建一个整体的检测系统，我们后续将为每一种错误类型申请一个三级域名并配置错误，最后再封装成递归解析安全增强措施部署分析的原型系统。
 ![](./photos/ecode.png)
