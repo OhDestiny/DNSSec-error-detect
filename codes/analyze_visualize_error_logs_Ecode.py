@@ -41,9 +41,12 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
     my_explode = explode[0:len(error_list)]
 
     # 饼图
-    plt.pie(error_num, colors=my_color, autopct='%1.1f%%', startangle=120, pctdistance=1.15, explode=my_explode,
-            radius=0.7)
-    center_circle = plt.Circle((0, 0), 0.40, fc='white')
+    fig, ax = plt.subplots()
+    ax.set_position([0.2, 0.3, 0.6, 0.6])
+
+    ax.pie(error_num, colors=my_color, autopct='%1.1f%%', startangle=120, pctdistance=1.0, explode=my_explode,
+           radius=0.7, center=(0.5, 0.5))
+    center_circle = plt.Circle((0.5, 0.5), 0.40, fc='white')
     fig = plt.gcf()
     fig.gca().add_artist(center_circle)
 
@@ -51,12 +54,25 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
     plt.title(domain_name.split('.')[0] + '_' + error + '_' + 'error_distribute')
 
     # 添加标签
+    ecode = ["EDE: 1", "EDE: 2", "EDE: 3", "EDE: 4", "EDE: 5", "EDE: 6", "EDE: 7", "EDE: 8", "EDE: 9"
+             , "EDE: 10", "EDE: 11", "EDE: 12", "EDE: 13", "EDE: 14", "EDE: 15", "EDE: 16", "EDE: 17",
+             "EDE: 18", "EDE: 19", "EDE: 20", "EDE: 21", "EDE: 22", "EDE: 23", "EDE: 24"]
+    error_name = ["Unsupported DNSKEY Algorithm", "Unsupported DS Digest Type", "stale Answer", "Forged Answer",
+                  "DNSSEC Indeterminate", "DNSSEC Bogus", "Signature Expired", "Signature Not Yet Valid",
+                  "DNSKEY Missing",
+                  "RRSIGs Missing", "No Zone Key Bit Set", "NSEC Missing", "Cached Error", "Not Ready", "Blocked",
+                  "Censored", "Filtered", "Prohibited", "Stale NXDomain Answer", "Not Authoritative",
+                  "Not Supported", "No Reachable Authority", "Network Error", "Invalid Data"]
+    ""
     labels = error_list
     for i in range(len(labels)):
-        labels[i] = labels[i].replace(';', '').replace(' ', '', 1)
+        for j in range(24):
+            if ecode[j] in labels[i][2:len(labels[i])]:
+                labels[i] = labels[i][2:len(labels[i])] + '(' + error_name[j] + ")"
+                break
 
     print(labels)
-    plt.legend(labels, loc="lower center", bbox_to_anchor=(1, -0.1), frameon=False)
+    plt.legend(labels, loc="lower center", bbox_to_anchor=(0.6, -0.4), frameon=False)
 
     # 显示图表
     photo_file = os.path.join(project_root_file, "resources", "photos", domain_name.split('.')[0] + '_' +
@@ -75,15 +91,15 @@ def visualize_error(error_list, log_file, error_num):
     for i in range(len(error_list)):
         if error_list[i] == "no_error_code":
             index = i
+            error_num[index] = 1000
             print(index)
     for row in log_data:
         # print(row)
         for i in range(len(error_list)):
-            if error_list[i] in row:
+            if error_list[i][2:len(error_list[i])] in row:
                 print(row)
                 error_num[i] += 1
 
-    error_num[index] = 1000
     for i in range(len(error_list)):
         if i != index:
             error_num[index] -= error_num[i]
@@ -100,10 +116,11 @@ if __name__ == '__main__':
     # 设置参数
     project_root = os.path.dirname(os.path.dirname(current_script_path))
 
-    errors = "dnskeyMissing"
-    domain = "iwbtfy.top"
+    errors = sys.argv[2]
+    domain = sys.argv[1]
 
-    error_list_file = os.path.join(project_root, "data", "error_list", "eCode_errors_list_" + domain.split('.')[0] + '_' +
+    error_list_file = os.path.join(project_root, "data", "error_list",
+                                   "eCode_errors_list_" + domain.split('.')[0] + '_' +
                                    errors + ".txt")
     errors_list = []
     errors_data = np.genfromtxt(error_list_file, delimiter='\n', dtype=str)

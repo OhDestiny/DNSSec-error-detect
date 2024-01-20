@@ -32,10 +32,10 @@ mkdir $key_directory
 # 生成keys
 cd $key_directory
 # dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top.
-ksk=$(dnssec-keygen -f KSK -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top. | grep iwbtfy)
+ksk=$(dnssec-keygen -f KSK -a RSASHA256 -r /dev/urandom -b 2048 -n ZONE $1.iwbtfy.top. | grep iwbtfy)
 echo $ksk
 # dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top.
-zsk=$(dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE $1.iwbtfy.top. | grep iwbtfy)
+zsk=$(dnssec-keygen -a RSASHA256 -r /dev/urandom -b 1024 -n ZONE $1.iwbtfy.top. | grep iwbtfy)
 echo $zsk
 
 # 将keys写入到域配置中

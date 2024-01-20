@@ -114,7 +114,7 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   dnssec-keygen -a RSASHA1 -r /dev/urandom -b 512 -n ZONE iwbtfy.top.
   
   kSK  Kiwbtfy.top.+005+16429.key
-  ZSK  Kiwbtfy.top.+005+63462.key
+  ZSK  Kiwbtfy.top.+005+63462.keyi
   ```
 
 
@@ -146,6 +146,7 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   dnssec-dsfromkey -2 Kiwbtfy.top.+005+16429.key
   
   iwbtfy.top. IN DS 16429 5 2 C86EDB0E66548551236FDF978CB92E12F005C033FA2B7DC21AA4FD98BF0E5E8B
+  iwbtfy.top. IN DS 2785 8 2 0048A4CF8CC7CC9EDDA5697AFE87F9717843C44A286BBF450D420DAD05C8F3E5
   ```
 
 + 将ds记录添加到腾讯云控制台
@@ -224,12 +225,12 @@ DNSSEC是一种dns的安全扩展技术， 通过提供源身份验证来防止 
   ```
 
 #### 2.3.2 子域 unsupportedDs.iwbtfy.top
-#### 2.3.3 子域 signatureExpired.iwbtfy.top
-#### 2.3.4 子域 signatureNotValid.iwbtfy.top
-#### 2.3.5 子域 rrsigMissing.iwbtfy.top
+#### 2.3.3 子域 signatureExpired.iwbtfy.top      1
+#### 2.3.4 子域 signatureNotValid.iwbtfy.top     1
+#### 2.3.5 子域 rrsigMissing.iwbtfy.top          1
 #### 2.3.6 子域 noZoneKey.iwbtfy.top
 #### 2.3.7 子域 nsecMissing.iwbtfy.top
-#### 2.3.8 子域 dnskeyMissing.iwbtfy.top
+#### 2.3.8 子域 dnskeyMissing.iwbtfy.top         1
 
 ---
 由于八个子域的配置过程类似但是比较麻烦，如果一个一个手动配置比较麻烦，而且显得很呆，于是我们编写了shell脚本进行一键配置。 只要运行下边命令就可以一键配置。
@@ -718,5 +719,5 @@ def detect_error(errors, domain_names, nameserver_file, key_file, logs, record_t
 
 ### 4.2 展望
 
-在于陈老师开会讨论后，陈老师提出了新的思路，即通过修改dig版本，使其支持edns，将其他返回的错误文本信息都统一转换为error_code，如下图，以更好的说明服务器的检测能力。同时，为了搭建一个整体的检测系统，我们后续将为每一种错误类型申请一个三级域名并配置错误，最后再封装成递归解析安全增强措施部署分析的原型系统。
+在与陈老师开会讨论后，陈老师提出了新的思路，即通过修改dig版本，使其支持edns，将其他返回的错误文本信息都统一转换为error_code，如下图，以更好的说明服务器的检测能力。同时，为了搭建一个整体的检测系统，我们后续将为每一种错误类型申请一个三级域名并配置错误，最后再封装成递归解析安全增强措施部署分析的原型系统。
 ![](./photos/ecode.png)
