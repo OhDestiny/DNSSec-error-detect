@@ -1164,35 +1164,35 @@ def detect_error(errors, domain_names, nameserver_file, key_file, logs, record_t
 
 ### 4.1 子域 unsupportedDnskey.iwbtfy.top
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\unsupportedDnskey_unsupportedDnskey_eCode_error_distribute.png)
+![](../resources/photos/unsupportedDnskey_unsupportedDnskey_eCode_error_distribute.png)
 
 ### 4.2 子域 unsupportedDs.iwbtfy.top 
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\unsupportedDs_unsupportedDs_eCode_error_distribute.png)
+![](../resources/photos/unsupportedDs_unsupportedDs_eCode_error_distribute.png)
 
 ### 4.3 子域 signatureExpired.iwbtfy.top    
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\signatureExpired_signatureExpired_eCode_error_distribute.png)
+![](../resources/photos/signatureExpired_signatureExpired_eCode_error_distribute.png)
 
 ### 4.4 子域 signatureNotValid.iwbtfy.top   
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\signatureNotValid_signatureNotValid_eCode_error_distribute.png)
+![](../resources/photos/signatureNotValid_signatureNotValid_eCode_error_distribute.png)
 
 ### 4.5 子域 rrsigMissing.iwbtfy.top     
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\rrsigMissing_rrsigMissing_eCode_error_distribute.png)
+![](../resources/photos/rrsigMissing_rrsigMissing_eCode_error_distribute.png)
 
 ### 4.6 子域 noZoneKey.iwbtfy.top 
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\noZoneKey_noZoneKey_eCode_error_distribute.png)
+![](../resources/photos/noZoneKey_noZoneKey_eCode_error_distribute.png)
 
 ### 4.7 子域 nsecMissing.iwbtfy.top 
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\nsecMissing_nsecMissing_eCode_error_distribute.png)
+![](../resources/photos/nsecMissing_nsecMissing_eCode_error_distribute.png)
 
 ### 4.8 子域 dnskeyMissing.iwbtfy.top         
 
-![](C:\Users\tff\Downloads\dnssec-error-detect-master\dnssec-error-detect-master\docs\photos\dnskeyMissing_dnskeyMissing_eCode_error_distribute.png)
+![](../resources/photos/dnskeyMissing_dnskeyMissing_eCode_error_distribute.png)
 
 ## 5.总结与展望
 
