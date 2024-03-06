@@ -1,0 +1,9 @@
+,RRSIGs Missing,1180,no_error_code,1323,RRSIGs Missing,2067,Not Authoritative,8,DNSSEC Bogus,65,no_error_code,1393,no_error_code,1258,DNSKEY Missing,3
+0,Cached Error,1.0,DNSSEC Bogus,114.0,No Reachable Authority,1.0,Not Ready,2,DIG command failed,103.0,No Reachable Authority,2.0,No Reachable Authority,68.0,no_error_code,1331.0
+1,DNSKEY Missing,856.0,RRSIGs Missing,2054.0,no_error_code,1283.0,no_error_code,1292,Signature Expired,2117.0,Signature Not Yet Valid,2104.0,NSEC Missing,1.0,NSEC Missing,1.0
+2,DIG command failed,145.0,DIG command failed,116.0,DIG command failed,144.0,Invalid Data,8,no_error_code,1321.0,DIG command failed,108.0,Cached Error,64.0,No Reachable Authority,133.0
+3,no_error_code,1316.0,,,DNSSEC Bogus,110.0,No Reachable Authority,1,Cached Error,1.0,,,Signature Expired,1893.0,DNSSEC Bogus,1953.0
+4,DNSSEC Bogus,109.0,,,Cached Error,2.0,DIG command failed,179,,,,,DNSSEC Bogus,114.0,Cached Error,62.0
+5,,,,,,,DNSSEC Bogus,62,,,,,DNSKEY Missing,65.0,DIG command failed,124.0
+6,,,,,,,RRSIGs Missing,2052,,,,,DIG command failed,144.0,,
+7,,,,,,,Prohibited,3,,,,,,,,

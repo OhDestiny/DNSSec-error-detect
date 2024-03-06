@@ -21,17 +21,16 @@ def is_recursion(nameserver):
         dig_output = subprocess.check_output(dig_command)
     except subprocess.CalledProcessError as e:
         print("Error running dig:", e)
-        exit(1)
-
+        return False
     # 在输出中查找包含"flags"的行
     flags_line = None
-    for line in dig_output.split('\n'):
+    for line in dig_output.split(b'\n'):
         if "flags".encode("utf-8") in line:
             flags_line = line
             break
 
     # 从含有flags的行中进一步查询是否有RA字段
-    if "ra".encode("utf-8") in flags_line:
+    if flags_line is not None and "ra".encode("utf-8") in flags_line:
         return True
     else:
         return False
@@ -50,17 +49,17 @@ def is_dnssec(nameserver):
         dig_output = subprocess.check_output(dig_command_two)
     except subprocess.CalledProcessError as e:
         print("Error running dig:", e)
-        exit(1)
+        return False
 
     # 在输出中查找包含"flags"的行
     flags_line = None
-    for line in dig_output.split('\n'):
+    for line in dig_output.split(b'\n'):
         if "flags".encode("utf-8") in line:
             flags_line = line
             break
 
     # 从含有flags的行中进一步查询是否有RA字段
-    if "ad".encode("utf-8") in flags_line:
+    if flags_line is not None and "ad".encode("utf-8") in flags_line:
         return True
     else:
         return False
@@ -101,8 +100,8 @@ if __name__ == '__main__':
     for row in recursion_nameservers_data:
         print(row)
         if is_dnssec(row):
-            nameservers_recursion_list.append(row)
+            nameservers_re_dnssec_list.append(row)
             print("AD")
 
     # 将判断结果写入csv文件
-    np.savetxt(csv_file_re_dnssec, nameservers_recursion_list, delimiter=',', fmt='%s')
+    np.savetxt(csv_file_re_dnssec, nameservers_re_dnssec_list, delimiter=',', fmt='%s')

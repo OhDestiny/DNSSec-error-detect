@@ -1,0 +1,9 @@
+Not Authoritative,8
+Not Ready,2
+no_error_code,1292
+Invalid Data,8
+No Reachable Authority,1
+DIG command failed,179
+DNSSEC Bogus,62
+RRSIGs Missing,2052
+Prohibited,3

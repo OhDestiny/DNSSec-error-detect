@@ -1,0 +1,8 @@
+no_error_code,1258
+No Reachable Authority,68
+NSEC Missing,1
+Cached Error,64
+Signature Expired,1893
+DNSSEC Bogus,114
+DNSKEY Missing,65
+DIG command failed,144

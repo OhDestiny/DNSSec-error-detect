@@ -1,9 +1,9 @@
-b'; EDE: 6 
-b'; EDE: 24 
-b'; EDE: 13 
-DIG command failed
-b'; EDE: 10 
 b'; EDE: 20 
-no_error_code
 b'; EDE: 14 
+no_error_code
+b'; EDE: 24 
 b'; EDE: 22 
+DIG command failed
+b'; EDE: 6 
+b'; EDE: 10 
+b'; EDE: 18 

@@ -52,10 +52,10 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
 
     # 设置标题
     plt.title(domain_name.split('.')[0] + '_' + error + '_' + 'error_distribute')
-
+    print("标签设置成功")
     # 添加标签
     ecode = ["EDE: 1", "EDE: 2", "EDE: 3", "EDE: 4", "EDE: 5", "EDE: 6", "EDE: 7", "EDE: 8", "EDE: 9"
-             , "EDE: 10", "EDE: 11", "EDE: 12", "EDE: 13", "EDE: 14", "EDE: 15", "EDE: 16", "EDE: 17",
+        , "EDE: 10", "EDE: 11", "EDE: 12", "EDE: 13", "EDE: 14", "EDE: 15", "EDE: 16", "EDE: 17",
              "EDE: 18", "EDE: 19", "EDE: 20", "EDE: 21", "EDE: 22", "EDE: 23", "EDE: 24"]
     error_name = ["Unsupported DNSKEY Algorithm", "Unsupported DS Digest Type", "stale Answer", "Forged Answer",
                   "DNSSEC Indeterminate", "DNSSEC Bogus", "Signature Expired", "Signature Not Yet Valid",
@@ -86,12 +86,12 @@ def error_pie(error_list, error_num, domain_name, error, project_root_file):
 # error_list: 返回错误的类型
 # log_file: 返回错误的日志文件
 # error_num: 每一种错误的数量数组
-def visualize_error(error_list, log_file, error_num):
+def visualize_error(error_list, log_file, error_num, project_root_file, errors_name, domain_names):
     log_data = np.genfromtxt(log_file, delimiter='\n', dtype=str)
     for i in range(len(error_list)):
         if error_list[i] == "no_error_code":
             index = i
-            error_num[index] = 1000
+            error_num[index] = 3607
             print(index)
     for row in log_data:
         # print(row)
@@ -103,8 +103,18 @@ def visualize_error(error_list, log_file, error_num):
     for i in range(len(error_list)):
         if i != index:
             error_num[index] -= error_num[i]
+
+    list_error_num = []
     for i in range(len(error_list)):
+        list_tmp = [error_list[i], error_num[i]]
+        print(error_list[i])
         print(error_num[i])
+        list_error_num.append(list_tmp)
+
+    list_error_num_file = os.path.join(project_root_file, "data", "error_list",
+                                       "eCode_list_error_num_" + domain_names.split('.')[0] + '_' +
+                                       errors_name + ".csv")
+    np.savetxt(list_error_num_file, list_error_num, delimiter=',', fmt='%s')
     return error_num
 
 
@@ -116,8 +126,11 @@ if __name__ == '__main__':
     # 设置参数
     project_root = os.path.dirname(os.path.dirname(current_script_path))
 
-    errors = sys.argv[2]
-    domain = sys.argv[1]
+    # errors = sys.argv[2]
+    # domain = sys.argv[1]
+
+    errors = "unsupportedDs"
+    domain = "unsupportedDs.iwbtfy.top"
 
     error_list_file = os.path.join(project_root, "data", "error_list",
                                    "eCode_errors_list_" + domain.split('.')[0] + '_' +
@@ -132,7 +145,8 @@ if __name__ == '__main__':
                              errors + ".txt")
 
     # 统计error_num
-    visualize_error(errors_list, logs_file, errors_num)
+    visualize_error(errors_list, logs_file, errors_num, project_root, errors, domain)
 
     # 绘制饼图，并写入结果
     error_pie(errors_list, errors_num, domain, errors, project_root)
+    print("绘制完成")

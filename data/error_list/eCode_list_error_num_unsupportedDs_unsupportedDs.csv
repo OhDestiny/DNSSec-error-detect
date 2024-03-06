@@ -1,0 +1,7 @@
+DNSKEY Missing,3
+no_error_code,1331
+NSEC Missing,1
+No Reachable Authority,133
+DNSSEC Bogus,1953
+Cached Error,62
+DIG command failed,124
